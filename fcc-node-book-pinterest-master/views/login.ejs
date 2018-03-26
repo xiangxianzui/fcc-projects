@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+
+<html>
+
+	<head>
+		<title>Sign In</title>
+		<link href="/public/book/css/bootstrap.css" rel="stylesheet" type="text/css">
+		<link href="/public/book/css/main.css" rel="stylesheet" type="text/css">
+		<script type="text/javascript" src="/public/book/js/jquery.js"></script>
+	</head>
+
+	<header>
+		<!--navbar starts-->
+        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+            <div class="navbar-header">
+            	<a class="navbar-brand" href="#"><span id="display-name"></span></a>
+            </div>
+            <div class="pull-right">
+                <ul class="nav navbar-nav">
+                	<li><a href="/book">Book Manager</a></li>
+                    <li><a href="/pinterest">Pinterest Clone</a></li>
+                    <li id='sign_in_li'><a href="/login"><span class="glyphicon glyphicon-log-in"></span> Sign In</a></li>
+                    <li id='sign_up_li'><a href="/register"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+                    <li id='profile_li' class='hide' title='Profile'><a href="/profile"><span class="glyphicon glyphicon-th"></span></a></li>
+                    <li id='logout_li' class='hide' title='Log Out'><a href="/logout"><span class="glyphicon glyphicon-off"></span></a></li>
+                </ul>
+            </div>
+        </nav>
+        <!--navbar ends-->
+	</header>
+
+	<body>
+		<div class="container">
+			<br />
+				<h1 class="text-center text-primary"><span class="glyphicon glyphicon-log-in"></span> Sign In</h1>
+			<br />
+		</div>
+		<div class="container" style="width: 60%;">	
+				<form action="/login" method="post">
+					<div class='input-group'>
+						<span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+						<input id='username-input' type="text" class='form-control' name="username" placeholder='Username'/>
+					</div>
+					<div class='input-group' style="margin-top: 10px">
+						<span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+						<input id='password-input' type="password" class='form-control' name="password" placeholder='Password'/>
+					</div>
+					<div class='input-group' style="margin-top: 10px">
+						<input class='btn btn-primary' type="submit" value="Sign In"/>
+					</div>
+				</form>
+			</div>
+	</body>
+
+	<footer>
+		<nav class="navbar navbar-inverse navbar-fixed-bottom">
+  			<div class="container">
+    			<div style="margin-top: 1%">
+          		<a href="mailto:xiangxianzui@gmail.com"><span class="glyphicon glyphicon-envelope"></span> Email</a> | 
+          		<a href="https://github.com/xiangxianzui/fcc-node-book-pinterest"><span class="glyphicon glyphicon-home"></span> Github</a>
+        		</div>
+  			</div>
+		</nav>
+		
+	</footer>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		var isLogin = false;
+		$.ajax({
+			url: '/user/:id',
+			success: function(data){
+				var displayName = data.username;
+                if(displayName){
+                	$('#display-name').text(displayName);
+                	isLogin = true;
+                	$('#sign_in_li').addClass('hide');
+                	$('#sign_up_li').addClass('hide');
+                	$('#profile_li').removeClass('hide');
+                	$('#logout_li').removeClass('hide');
+                }
+                else{
+                    $('#display-name').text('Hello guest');
+                    isLogin = false;
+                }
+			}
+		});
+	});
+</script>
+
+</html>

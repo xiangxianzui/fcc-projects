@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+
+<html>
+
+	<head>
+		<title>Night Life Coordinator</title>
+		<script type="text/javascript" src="/public/nightlife/js/jquery.js"></script>
+		<script type="text/javascript" src="/public/nightlife/js/bootstrap.js"></script>
+		<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=WOj5A93CceVT92mGD6HUiO2s8u2g3Csz"></script>
+		<link href="/public/nightlife/css/bootstrap.css" rel="stylesheet" type="text/css">
+		<link href="/public/nightlife/css/main.css" rel="stylesheet" type="text/css">
+		<style type="text/css">
+body, html,#allmap {width: 100%;height: 100%;overflow: auto;margin:0;}
+</style>
+
+
+	</head>
+
+	<header>
+		<!--navbar starts-->
+        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+            <div class="navbar-header">
+            	<a class="navbar-brand" href="#"><span id="display-name"></span></a>
+            </div>
+            <div class="pull-right">
+                <ul class="nav navbar-nav">
+                	<li><a href="/nightlife/login">Sign In</a></li>
+                    <li><a href="/nightlife/willinglist">Willing List</a></li>
+                    <li><a href="/nightlife/logout">Logout</a></li>
+                </ul>
+            </div>
+        </nav>
+        <!--navbar ends-->
+	</header>
+
+	<body>
+		<div class="container">
+			<br />
+			<p class="clementine-text">We Make Your Night</p>
+			<br />
+		</div>
+		<div class="container text-center">
+			<div><i class='glyphicon glyphicon-user'></i><span id='location-span'> Getting your location...</span></div>
+			<div style="margin: 5px;">
+				<input id='search_q' class="searchbar" placeholder="Search nearby...">
+				<button id='search_b' class="searchbutton">Go</button>
+			</div>
+		</div>
+
+		<div class='container' id='search-result-div'></div>
+
+		<div style="width:400px; height:400px">
+			<div id='allmap'></div>
+		</div>
+		
+	</body>
+
+	<script>
+
+	$(document).ready(function(){
+
+		var isLogin = false;
+		$.ajax({
+			url: '/nightlife/user/:id',
+			success: function(data){
+				var displayName = data.username;
+                if(displayName){
+                	$('#display-name').text(displayName);
+                	isLogin = true;
+                }
+                else{
+                    $('#display-name').text('Hello guest');
+                    isLogin = false;
+                }
+			}
+		});
+
+		var lat = 39.915;
+		var lon = 116.404;
+	
+	//get current position
+	var geolocation = new BMap.Geolocation();
+	geolocation.getCurrentPosition(function(r){
+		if(this.getStatus() == BMAP_STATUS_SUCCESS){
+			var geoc = new BMap.Geocoder();
+			geoc.getLocation(r.point, function(rs){
+				var addComp = rs.addressComponents;
+				var address = ' '+addComp.district+' '+addComp.street+' '+addComp.streetNumber+', '+addComp.city;
+				$('#location-span').text(address);
+				//alert(address);
+			});
+			
+			lat = r.point.lat;
+			lon = r.point.lng;
+			//alert('Your location: '+r.point.lng+','+r.point.lat);
+		}
+		else {
+			$('#location-span').text(" Can't get your location");
+			alert('failed'+this.getStatus());
+		}        
+	},{enableHighAccuracy: true})
+
+		
+		var radius = 2000;
+		var baiduPlaceApiKey = "6cb3f458a482fcd009414370808ea219";
+		
+		$('#search_b').on('click', function(){
+			var query = $('#search_q').val().trim();
+			if(query!==null && query!==''){
+				var baiduPlaceSearchApi = "http://api.map.baidu.com/place/v2/search?output=json&page_size=20&page_num=0&scope=2&query="
+		+query+"&radius="+radius+"&location="+lat+","+lon+"&ak="+baiduPlaceApiKey;
+				//alert(baiduPlaceSearchApi);
+				$.ajax({
+					url: baiduPlaceSearchApi,
+					dataType: 'jsonp',
+					success: function(data){
+						if(data.results!==undefined && data.results.length!==0){
+							$('#search-result-div').html('');
+							var html = "<table class='table table-hover'><thead><tr><th>Name</th><th>Detail</th><th>Contact</th></tr></thead><tbody>";
+							var searchResults = data.results;
+							for(var i=0; i<searchResults.length; i++){
+								var name = searchResults[i].name || 'unknown';
+								var address = searchResults[i].address || 'unknown';
+								var telephone = searchResults[i].telephone || 'unknown';
+								var uid = searchResults[i].uid;
+								var price = searchResults[i].detail_info.price || 'unknown';
+								var distance = searchResults[i].detail_info.distance || 'unknown';
+								var overall_rating = searchResults[i].detail_info.overall_rating || 0;
+								var service_rating = searchResults[i].detail_info.service_rating || 0;
+								var environment_rating = searchResults[i].detail_info.environment_rating || 0;
+								var name_html = (name==='unknown') ? "" : "<i class='glyphicon glyphicon-glass'></i> "+"<a href='/nightlife/place/:"+uid+"'>"+name+"</a>";
+								var price_html = (price==='unknown') ? "" : "<i class='glyphicon glyphicon-usd'></i> "+price+"/person";
+								var distance_html = (distance==='unknown') ? "" : "<i class='glyphicon glyphicon-road'></i> "+distance+"m";
+								var address_html = (address==='unknown') ? "" : "<i class='glyphicon glyphicon-home'></i> "+address;
+								var telephone_html = (telephone==='unknown') ? "" : "<i class='glyphicon glyphicon-earphone'></i> "+telephone;
+								var rating_html = "<i class='glyphicon glyphicon-star'></i> Overall: "+overall_rating+"<br /><i class='glyphicon glyphicon-star'></i> Service: "+service_rating+"<br /><i class='glyphicon glyphicon-star'></i> Environment: "+environment_rating;
+								html += "<tr><td>"+name_html+"<br />"+price_html+"</td><td>"+distance_html+"<br />"+rating_html+"</td><td>"+address_html+"<br />"+telephone_html+"</td><td><a class='searchbutton' href='/nightlife/place/:"+uid+"'>go for tonight!</a></td></tr>";
+
+							}
+							html += "</tbody></table>";
+							$('#search-result-div').append(html);
+						}
+						else{
+							alert('Sorry.. no results found...');
+						}
+						
+					}
+				});
+			}
+			else{
+				alert('Please fill in the blank.');
+			}
+		});
+		
+		
+		
+		
+	});
+
+/*
+	$(document).ready(function(){
+
+	// Initialize Baidu Map
+	var map = new BMap.Map("allmap");
+	var point = new BMap.Point(116.331398,39.897445);
+	map.centerAndZoom(point,12);
+	map.setMapStyle({style:'midnight'});
+
+	var geoc = new BMap.Geocoder();
+	map.addEventListener("click", function(e){        
+		var pt = e.point;
+		geoc.getLocation(pt, function(rs){
+			var addComp = rs.addressComponents;
+			var address = addComp.district+' '+addComp.street+' '+addComp.streetNumber+', '+addComp.city;
+			alert(address);
+		});        
+	});
+
+	//get current position
+	var geolocation = new BMap.Geolocation();
+	geolocation.getCurrentPosition(function(r){
+		if(this.getStatus() == BMAP_STATUS_SUCCESS){
+			var mk = new BMap.Marker(r.point);
+			map.addOverlay(mk);
+			map.panTo(r.point);
+			map.centerAndZoom(r.point,14);
+			var city = new BMap.LocalCity();
+			city.get(function(result){
+				var cityName = result.name;
+				alert("当前定位城市:"+cityName);
+			});
+			geoc.getLocation(r.point, function(rs){
+				var addComp = rs.addressComponents;
+				var address = addComp.district+' '+addComp.street+' '+addComp.streetNumber+', '+addComp.city;
+				$('#location-span').text(address);
+				alert(address);
+			});
+			//alert('Your location: '+r.point.lng+','+r.point.lat);
+		}
+		else {
+			alert('failed'+this.getStatus());
+		}        
+	},{enableHighAccuracy: true})
+
+
+		
+var local = new BMap.LocalSearch(map, {
+	renderOptions:{map: map, autoViewport:true}
+});
+local.searchNearby("bar", "故宫");
+
+
+	});*/
+
+
+</script>
+
+</html>

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+
+<html>
+
+	<head>
+		<title>Personal Profile</title>
+		<link href="/public/book/css/bootstrap.css" rel="stylesheet" type="text/css">
+		<link href="/public/book/css/main.css" rel="stylesheet" type="text/css">
+		<script type="text/javascript" src="/public/book/js/jquery.js"></script>
+	</head>
+
+	<header>
+		<!--navbar starts-->
+        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+            <div class="navbar-header">
+            	<a class="navbar-brand" href="#"><span id="display-name"></span></a>
+            </div>
+            <div class="pull-right">
+                <ul class="nav navbar-nav">
+                	<li><a href="/book">Book Manager</a></li>
+                    <li><a href="/pinterest">Pinterest Clone</a></li>
+                    <li id='sign_in_li'><a href="/login"><span class="glyphicon glyphicon-log-in"></span> Sign In</a></li>
+                    <li id='sign_up_li'><a href="/register"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+                    <li id='profile_li' class='hide' title='Profile'><a href="/profile"><span class="glyphicon glyphicon-th"></span></a></li>
+                    <li id='logout_li' class='hide' title='Log Out'><a href="/logout"><span class="glyphicon glyphicon-off"></span></a></li>
+                </ul>
+            </div>
+        </nav>
+        <!--navbar ends-->
+	</header>
+
+	<body>
+		<div class="container">
+			<div><h1 class='text-center'>Profile</h1></div>
+			<div class='text-center'>
+				<img id='avatar-img' src='' alt='Avatar' style="width: 128px; height: 128px">
+				<input class='hide' id='upload-input' type='file' name='upload[]'>
+				<button class='btn btn-default' id='upload-btn'>Upload</button>
+			</div>
+			<!--panel-group starts-->
+			<div class="panel-group" style="margin: 10px">
+			<div class="panel panel-default">
+      			<div class="panel-heading">Traded Books</div>
+      			<div class="panel-body" id='traded-list'></div>
+
+      			<div class="panel-heading">Shortcuts</div>
+      			<div class="panel-body">
+      				<a class='btn btn-link' href='/book/mybooks'><span class="glyphicon glyphicon-hand-right"></span> My Books</a>
+      				<a class='btn btn-link' id='my-pinterest-link'><span class="glyphicon glyphicon-hand-right"></span> My Pinterests</a>
+      			</div>
+    		</div>
+    		<div class="panel panel-default">
+      			<div class="panel-heading">Settings</div>
+      			<div class="panel-body">
+      				<div class='input-group'>
+						<span class="input-group-addon"><i class="glyphicon glyphicon-flag"></i></span>
+						<input id='city-input' type="text" class='form-control' name="city" placeholder='City'/>
+					</div>
+					<div class='has-error'>
+						<span id='city-help' class="help-block"></span>
+					</div>
+					<div class='input-group'>
+						<span class="input-group-addon"><i class="glyphicon glyphicon-globe"></i></span>
+						<input id='country-input' type="text" class='form-control' name="country" placeholder='Country'/>
+					</div>
+					<div class='has-error'>
+						<span id='country-help' class="help-block"></span>
+					</div>
+					<div class='has-success'>
+						<span id='setting-help' class="help-block"></span>
+					</div>
+					<div class='input-group'>
+						<button class='btn btn-primary' id='setting-save-btn'>Save Changes</button>
+					</div>
+      			</div>
+
+      			<div class="panel-heading">Change Password</div>
+      			<div class="panel-body">
+      				<div class='input-group'>
+						<span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+						<input id='old-password-input' type="password" class='form-control' name="old-password" placeholder='Old Password'/>
+					</div>
+					<div class='has-error'>
+						<span id='old-password-help' class="help-block"></span>
+					</div>
+					<div class='input-group'>
+						<span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+						<input id='new-password-input' type="password" class='form-control' name="new-password" placeholder='New Password'/>
+					</div>
+					<div class='has-error'>
+						<span id='new-password-help' class="help-block"></span>
+					</div>
+					<div class='has-success'>
+						<span id='password-help' class="help-block"></span>
+					</div>
+					<div class='input-group'>
+						<button class='btn btn-primary' id='password-save-btn'>Save Changes</button>
+					</div>
+      			</div>
+    		</div>
+  			</div>
+  			<!--panel-group ends-->
+		</div>
+
+	</body>
+
+	<footer>
+		<nav class="navbar navbar-inverse navbar-fixed-bottom">
+  			<div class="container">
+    			<div style="margin-top: 1%">
+          		<a href="mailto:xiangxianzui@gmail.com"><span class="glyphicon glyphicon-envelope"></span> Email</a> | 
+          		<a href="https://github.com/xiangxianzui/fcc-node-book-pinterest"><span class="glyphicon glyphicon-home"></span> Github</a>
+        		</div>
+  			</div>
+		</nav>
+		
+	</footer>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		var userid = <%-JSON.stringify(userid)%>;
+		$('#my-pinterest-link').attr('href', '/pinterest/user/:'+userid);
+		var isLogin = false;
+		$.ajax({
+			url: '/user/:id',
+			success: function(data){
+				var avatar = "/public/user/avatar/"+data.avatar;
+				$('#avatar-img').attr('src', avatar);
+				var city = data.city;
+				var country = data.country;
+				$('#city-input').val(city);
+				$('#country-input').val(country);
+				var displayName = data.username;
+                if(displayName){
+                	$('#display-name').text(displayName);
+                	isLogin = true;
+                	$('#sign_in_li').addClass('hide');
+                	$('#sign_up_li').addClass('hide');
+                	$('#profile_li').removeClass('hide');
+                	$('#logout_li').removeClass('hide');
+                }
+                else{
+                    $('#display-name').text('Hello guest');
+                    isLogin = false;
+                }
+			}
+		});
+	});
+</script>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		$.ajax({
+			url: '/book/getMyTraded',
+			success: function(data){
+				if(data!==null && data.length!==0){
+					data.forEach(function(d){
+						var bookid = d._id;
+						var bookname = d.bookname;
+						var html = "<div><span>"+bookname+"</span><span class='hide'>"+bookid+"</span><button id='untrade-btn' class='btn btn-primary pull-right'><span class='glyphicon glyphicon-eye-close'></span> Untrade</button><button id='wiki-btn' class='btn btn-default pull-right'><span class='glyphicon glyphicon-globe'></span> Wiki</button></div><hr>";
+						$('#traded-list').append(html);
+					});
+				}
+				else{
+					var html = "<span>None of your book has been traded yet!</span>";
+					$('#traded-list').append(html);
+				}
+			}
+		});
+
+		$('#traded-list').on('click', '#wiki-btn', function(){
+			var bookname = $(this).parent().children().eq(0).text();
+			var wiki_link = encodeURI("http://en.wikipedia.org/wiki/"+bookname);
+			window.open(wiki_link);
+		});
+		$('#traded-list').on('click', '#untrade-btn', function(){
+			var bookid = $(this).parent().children().eq(1).text();
+			var postData = {
+				bookid: bookid
+			};
+			$.ajax({
+				url: '/book/untrade',
+				type: 'POST',
+				data: postData,
+				success: function(data){
+					if(data==='success'){
+						window.location.reload();
+					}
+				}
+			});
+		});
+	});
+</script>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		$('#upload-btn').on('click', function(){
+			$('#upload-input').click();
+		});
+		$('#upload-input').on('change', function(){
+			var files = $(this).get(0).files;
+			if(files.length>0){//one or more files selected
+          		var file = files[0];
+          		//create a FormData object which will be sent via AJAX request
+          		//'upload[]' is the name attr of #upload-input
+          		var formData = new FormData();
+          		formData.append('upload[]', file, file.name);
+          		//alert('filename: '+file.name);
+
+          		//processData:false means to stop jquery from converting the formData object to string
+          		//contentType:false means to tell jquery not to add a Content-Type header
+          		$.ajax({
+            		url: '/user/uploadAvatar',
+            		type: 'POST',
+            		data: formData,
+            		processData: false,
+            		contentType: false,
+            		success: function(data){
+            			if(data==='success'){
+            				window.location.reload();
+            			}
+            		}
+          		});
+        	}
+		});
+
+		$('#setting-save-btn').on('click', function(){
+			var city = $('#city-input').val().trim();
+			var country = $('#country-input').val().trim();
+			if(city!=='' || country!==''){
+				var postData = {
+					city: city,
+					country: country
+				};
+				$.ajax({
+					url: '/user/updateSetting',
+					type: 'POST',
+					data: postData,
+					success: function(data){
+						if(data==='success'){
+							$('#setting-help').text('Updated Successfully!');
+							setTimeout(function(){$('#setting-help').text('');}, 3000);
+						}
+					}
+				});
+			}	
+		});
+
+		$('#password-save-btn').on('click', function(){
+			var oldPsw = $('#old-password-input').val().trim();
+			var newPsw = $('#new-password-input').val().trim();
+			if(oldPsw!==null && oldPsw!==''){
+				if(newPsw!==null && newPsw!==''){
+					var postData = {
+						oldPsw: oldPsw,
+						newPsw: newPsw
+					};
+					$.ajax({
+						url: '/user/updatePassword',
+						type: 'POST',
+						data: postData,
+						success: function(data){
+							if(data==='success'){
+								$('#password-help').text('Updated Successfully!');
+								setTimeout(function(){$('#password-help').text('');}, 3000);
+							}
+							if(data==='oldPsw wrong'){
+								$('#old-password-help').text('Password Wrong!');
+								setTimeout(function(){$('#old-password-help').text('');}, 3000);
+							}
+						}
+					});
+				}
+				else{
+					$('#new-password-help').text('Enter new password!');
+					setTimeout(function(){$('#new-password-help').text('');}, 3000);
+				}
+			}
+			else{
+				$('#old-password-help').text('Enter old password!');
+				setTimeout(function(){$('#old-password-help').text('');}, 3000);
+			}
+			
+		});
+	});
+</script>
+
+</html>

@@ -1,0 +1,28 @@
+{
+  "name": "heroku-file-metadata-microservice",
+  "version": "1.0.0",
+  "description": "Upload file and get its metadata",
+  "main": "server.js",
+  "scripts": {
+    "test": "node server.js",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xiangxianzui/heroku-file-metadata-microservice.git"
+  },
+  "keywords": [
+    "node"
+  ],
+  "author": "xiangxianzui",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/xiangxianzui/heroku-file-metadata-microservice/issues"
+  },
+  "homepage": "https://github.com/xiangxianzui/heroku-file-metadata-microservice#readme",
+  "dependencies": {
+    "ejs": "^2.5.5",
+    "express": "^4.14.0",
+    "formidable": "^1.0.17"
+  }
+}

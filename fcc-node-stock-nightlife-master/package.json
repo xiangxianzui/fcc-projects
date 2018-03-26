@@ -1,0 +1,37 @@
+{
+  "name": "fcc-node-stock-nightlife",
+  "version": "1.0.0",
+  "description": "Stock Market app and Nightlife app",
+  "main": "server.js",
+  "scripts": {
+    "test": "node server.js",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xiangxianzui/fcc-node-stock-nightlife.git"
+  },
+  "keywords": [
+    "node"
+  ],
+  "author": "xiangxianzui",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/xiangxianzui/fcc-node-stock-nightlife/issues"
+  },
+  "homepage": "https://github.com/xiangxianzui/fcc-node-stock-nightlife#readme",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "cookie-parser": "^1.4.3",
+    "dotenv": "^2.0.0",
+    "ejs": "^2.5.5",
+    "express": "^4.14.0",
+    "express-session": "^1.14.2",
+    "mongoose": "^4.7.5",
+    "morgan": "^1.7.0",
+    "passport": "^0.3.2",
+    "passport-local": "^1.0.0",
+    "querystring": "^0.2.0",
+    "request": "^2.79.0"
+  }
+}

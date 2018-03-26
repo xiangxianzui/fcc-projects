@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include ../partials/header.ejs %>
+</head>
+
+  <body>
+  	<div class="container" style="padding:10px;">
+  		<div class="row">
+  			<h1 class="inline">Image Searcher</h1>
+  			<a href="https://intense-retreat-79705.herokuapp.com/"><img class="inline" src="heroku.png"></a>
+  			<a href="https://www.freecodecamp.com/challenges/image-search-abstraction-layer"><img class="inline" src="freecodecamp.png"></a>
+  		</div>
+  		<div class="row">
+  			<h3>User Stories</h3>
+  			<ul>
+  				<li><p>I can get the image URLs, alt text and page urls for a set of images relating to a given search string.</p></li>
+          <li><p>I can paginate through the responses by adding a ?offset=2 parameter to the URL.</p></li>
+          <li><p>I can get a list of the most recently submitted search strings.</p></li>
+  			</ul>
+  		</div>
+  		<div class="row">
+  			<h3>Example Usage</h3>
+  			<ul>
+  				<li><code>https://intense-retreat-79705.herokuapp.com/</code></li>
+  				<li><code>https://intense-retreat-79705.herokuapp.com/imagesearch/?q=dog&offset=10</code></li>
+          <li><code>https://intense-retreat-79705.herokuapp.com/latest</code></li>
+  			</ul>
+  		</div>
+  		<div class="row">
+  			<h3>Example Output</h3>
+  			<ul>
+          <li>You will get a web page rendering result images.</li>
+  				<li>You can also input what you want to search and specify the offset on that page.</li>
+          <li>You will get the latest searching results by add '/latest' at the end of request url.</li>
+  			</ul>
+  		</div>
+  	</div>
+    
+  </body>
+</html>

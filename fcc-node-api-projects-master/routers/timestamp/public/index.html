@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Timestamp MicroService</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+  	<div class="container" style="padding:10px;">
+  		<div class="row">
+  			<h1 class="inline">Timestamp MicroService</h1>
+  			<a href="http://shielded-oasis-60412.herokuapp.com/"><img class="inline" src="heroku.png"></a>
+  			<a href="https://www.freecodecamp.com/challenges/timestamp-microservice"><img class="inline" src="freecodecamp.png"></a>
+  		</div>
+  		<div class="row">
+  			<h3>User Stories</h3>
+  			<ul>
+  				<li><p>I can pass a string as a parameter, and it will check to see whether that string contains either a unix timestamp or a natural language date (example: January 1, 2016)</p></li>
+  				<li><p>If it does, it returns both the Unix timestamp and the natural language form of that date.</p></li>
+  				<li><p>If it does not contain a date or Unix timestamp, it returns null for those properties.</p></li>
+  			</ul>
+  		</div>
+  		<div class="row">
+  			<h3>Example Usage</h3>
+  			<ul>
+  				<li><code>http://shielded-oasis-60412.herokuapp.com/timestamp/1481760000</code></li>
+  				<li><code>http://shielded-oasis-60412.herokuapp.com/timestamp/December%2015,%202016</code></li>
+  			</ul>
+  		</div>
+  		<div class="row">
+  			<h3>Example Output</h3>
+  			<ul>
+  				<li><code>{"unix":1481760000,"natural":"December 15, 2016"}</code></li>
+  				<li><code>{"unix":null,"natural":null}</code></li>
+  			</ul>
+  		</div>
+  	</div>
+    
+  </body>
+</html>

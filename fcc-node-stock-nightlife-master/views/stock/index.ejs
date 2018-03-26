@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+
+<html>
+
+	<head>
+		<title>Stock Market Chart</title>
+		<script type="text/javascript" src="/public/stock/js/jquery.js"></script>
+		<script type="text/javascript" src="/public/stock/js/bootstrap.js"></script>
+		<script type="text/javascript" src="/public/stock/js/highstock.js"></script>
+		<link href="/public/stock/css/bootstrap.css" rel="stylesheet" type="text/css">
+		<link href="/public/stock/css/main.css" rel="stylesheet" type="text/css">
+
+
+	</head>
+
+	<body>
+		<div class="container">
+			<br />
+			<p class="clementine-text">Stock Market Chart</p>
+			<br />
+		</div>
+
+		<div class="text-center" style="margin: 30px;">
+			<input list='search_list' id='search_q' class="searchbar" placeholder="Search stock ..." oninput="onInputFunc()">
+			<button id='search_b' class="searchbutton">Go</button>
+			<datalist id='search_list'></datalist>	
+		</div>
+		<div id='search-indicator' class='hide'></div>
+
+		<div class="container">
+			<div class="row">
+				<div class='col-md-3'>
+					<div class="dropdown">
+            		<button class="searchbutton dropdown-toggle" type="button" id="dropdown-btn" data-toggle="dropdown">All Added Stocks Cross Clients <span class="caret"></span></button>
+            		<ul class="dropdown-menu multi-level" id="dropdown-ul" role="menu" aria-labelledby="dropdown-btn">
+            		</ul>
+        			</div>
+				</div>
+				<div class='col-md-9'>
+					<div id="stock-chart" style="width:100%; height:400px;"></div>
+				</div>
+			</div>
+		</div>
+
+
+		<script type="text/javascript">
+
+			function onInputFunc(){
+				var searchStock = $('#search_q').val().trim();
+					if(searchStock===null || searchStock===''){
+						$('#search_list').html('');
+						$('#search-indicator').html('');
+					}
+					else{
+						searchStock = searchStock.toUpperCase();
+						var quoteApi = "http://dev.markitondemand.com/MODApis/Api/v2/Lookup/jsonp?input="+searchStock;
+						//alert(quoteApi);
+						
+						$.ajax({
+							url: quoteApi,
+							dataType: 'jsonp',
+							success: function(data){
+								if(!data.Message){
+									var set = new Set();
+									data.forEach(function(d){
+										var entry = d.Symbol + ' * ' + d.Name;
+										set.add(entry);
+									});
+									if(set.size===0){
+										$('#search-indicator').html('');
+										$('#search-indicator').append("<p>No matching results :( </p>");
+										$('#search_list').html('');
+										$('#search_list').append("<option value='No matching results :( '>");
+									}
+									else{
+										$('#search-indicator').html('');
+										$('#search_list').html('');
+										var html = "<table class='table table-hover'><thead><tr><th>Stock Code</th><th>Company</th></tr></thead><tbody>";
+										for(var v of set){
+											var thisCode = v.split(' * ')[0];
+											var thisCompany = v.split(' * ')[1];
+											html = html + "<tr><td>"+thisCode+"</td><td>"+thisCompany+"</td><td><button class='searchbutton'>Add</button></td></tr>";
+											$('#search_list').append("<option class='search_list_option' value="+thisCode+"><span>"+thisCompany+"</span>");
+											
+										}
+										html = html + "</tbody></table>";
+										$('#search-indicator').append(html);
+										
+									}
+									//alert(set.size);
+								}
+								else{
+									alert(data.Message);
+								}
+							}
+						});
+					}
+			}
+
+			$(document).ready(function(){
+				
+				var symbols = [];
+				var seriesOptions = [];
+				var seriesCounter = 0;
+				loadFromServer();
+				function loadFromServer(){
+					$.ajax({
+						url: '/stock/all',
+						success: function(data){
+							//alert("loadfromserver: "+ data);
+							data.forEach(function(d){
+								symbols.push(d);	
+							});
+							seriesCounter = 0;
+							callMarkitApi();
+						}
+					});
+				}
+
+				function callMarkitApi(){
+					$.each(symbols, function(i, symbol){
+						//alert(symbol);
+						var parameters = {
+							Normalized: false,
+							NumberOfDays: 365,
+							DataPeriod: 'Day',
+							Elements: [{
+								Symbol: symbol,
+								Type: 'price',
+								Params: ["c"]
+							}]
+						};
+						var apiUrl = "http://dev.markitondemand.com/MODApis/Api/v2/InteractiveChart/jsonp?parameters="+JSON.stringify(parameters);
+						//alert(apiUrl);
+					
+						$.ajax({
+							url: apiUrl,
+							dataType: 'jsonp',
+							success: function(data){
+							//alert(data.Elements.length);
+								if(!data.Message){
+									var chartData = [];
+									var len = data.Dates.length;
+									for(var j=0; j<len; j++){
+										var entry = [Date.parse(data.Dates[j]), data.Elements[0].DataSeries.close.values[j]];
+										chartData.push(entry);
+									}
+									seriesOptions[i] = {
+										name: symbol,
+										data: chartData
+									};
+									// As we're loading the data asynchronously, we don't know what order it will arrive. So
+            						// we keep a counter and create the chart when all the data is loaded.
+            						seriesCounter += 1;
+
+            						if (seriesCounter === symbols.length) {
+                						createChart();
+
+                						$('#dropdown-ul').html('');
+                						var html = "";
+                						symbols.forEach(function(s){
+                							var deleteUri = '/stock/delete/?symbol=' + s;
+                							html += "<li class='dropdown-submenu'><a>"+s+"</a><ul class='dropdown-menu'><li><a href="+deleteUri+">Delete</a></li></ul></li>";	
+                						});
+                						$('#dropdown-ul').append(html);
+            						}
+
+
+
+
+								}
+								else{
+									alert(data.Message);
+								}
+							},
+							error: function(){
+								alert('Sysmbol '+symbol+" does not exist!");
+							}
+						});
+
+					});
+				}
+
+				$('#search-indicator').on('click', '.searchbutton', function(){
+					var thisSymbol = $(this).parent().prev().prev().text();
+					var isExist = false;
+					symbols.forEach(function(s){
+						if(s===thisSymbol)	isExist = true;
+					});
+					$('#search-indicator').html('');
+					if(!isExist){
+						symbols.push(thisSymbol);
+						seriesCounter = 0;
+						callMarkitApi();
+
+						var postData = {
+							symbol: thisSymbol
+						};
+						$.ajax({
+							url: '/stock/add',
+							type: 'POST',
+							data: postData,
+							success: function(data){
+								if(data!=='success'){
+									alert(data);
+								}	
+							}
+						});
+					}
+				});
+
+				$('#search_b').on('click', function(){
+					var thisSymbol = $('#search_q').val().trim();
+					if(thisSymbol!==null && thisSymbol!==''){
+						thisSymbol = thisSymbol.toUpperCase();
+						var isExist = false;
+						symbols.forEach(function(s){
+							if(s===thisSymbol)	isExist = true;
+						});
+						if(!isExist){
+							symbols.push(thisSymbol);
+							seriesCounter = 0;
+							callMarkitApi();
+
+							var postData = {
+								symbol: thisSymbol
+							};
+							$.ajax({
+								url: '/stock/add',
+								type: 'POST',
+								data: postData,
+								success: function(data){
+									if(data!=='success'){
+										alert(data);
+									}	
+								}
+							});
+						}
+					}
+					else{
+						alert('Please input valid stock code!');
+					}
+					
+				});
+
+				function createChart(){
+					Highcharts.stockChart('stock-chart', {
+						rangeSelector: {
+							allButtonsEnabled: true,
+							selected: 1
+						},
+						tooltip: {
+                			pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b><br/>',
+                			valueDecimals: 2,
+                			split: true
+            			},
+						series: seriesOptions
+					});
+				}
+
+				
+
+			});
+		</script>
+		
+	</body>
+
+</html>

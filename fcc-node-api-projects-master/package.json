@@ -1,0 +1,33 @@
+{
+  "name": "fcc-node-api-projects",
+  "version": "1.0.0",
+  "description": "API projects in FreeCodeCamp using Node.js",
+  "main": "server.js",
+  "scripts": {
+    "test": "node server.js",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xiangxianzui/fcc-node-api-projects.git"
+  },
+  "keywords": [
+    "node"
+  ],
+  "author": "xiangxianzui",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/xiangxianzui/fcc-node-api-projects/issues"
+  },
+  "homepage": "https://github.com/xiangxianzui/fcc-node-api-projects#readme",
+  "dependencies": {
+    "ejs": "^2.5.5",
+    "express": "^4.14.0",
+    "formidable": "^1.0.17",
+    "moment": "^2.17.1",
+    "open": "0.0.5",
+    "request": "^2.79.0",
+    "request-ip": "^1.2.3",
+    "useragent": "^2.1.9"
+  }
+}

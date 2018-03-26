@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+
+<html>
+
+	<head>
+		<title>Night Life Coordinator</title>
+		<script type="text/javascript" src="/public/nightlife/js/jquery.js"></script>
+		<script type="text/javascript" src="/public/nightlife/js/bootstrap.js"></script>
+		<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=WOj5A93CceVT92mGD6HUiO2s8u2g3Csz"></script>
+		<link href="/public/nightlife/css/bootstrap.css" rel="stylesheet" type="text/css">
+		<link href="/public/nightlife/css/main.css" rel="stylesheet" type="text/css">
+		<style type="text/css">
+body, html,#allmap {width: 100%;height: 100%;overflow: auto;margin:0;}
+</style>
+
+
+	</head>
+
+	<header>
+		<!--navbar starts-->
+        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+            <div class="navbar-header">
+            	<a class="navbar-brand" href="#"><span id="display-name"></span></a>
+            </div>
+            <div class="pull-right">
+                <ul class="nav navbar-nav">
+                    <li><a href="/nightlife/login">Sign In</a></li>
+                    <li><a href="/nightlife/willinglist">Willing List</a></li>
+                    <li><a href="/nightlife/logout">Logout</a></li>
+                </ul>
+            </div>
+        </nav>
+        <!--navbar ends-->
+	</header>
+
+	<body>
+		<div class="container">
+			<br />
+			<p class="clementine-text" id='place-name'></p>
+			<br />
+		</div>
+
+		<div class='container'>
+			<div class='row'>
+				<div class='well col-md-6' id='place-div' style="width:50%; height:400px;">
+					<form class="form-horizontal">
+    				<div class="form-group">
+        				<label class="control-label col-md-4"><i class='glyphicon glyphicon-tags'></i></label>
+        				<div class="col-md-8" id='tag-div'></div>
+    				</div>
+    				<div class="form-group">
+        				<label class="control-label col-md-4"><i class='glyphicon glyphicon-home'></i></label>
+        				<div class="col-md-8" id='address-div'></div>
+    				</div>
+    				<div class="form-group">
+        				<label class="control-label col-md-4"><i class='glyphicon glyphicon-earphone'></i></label>
+        				<div class="col-md-8" id='telephone-div'></div>
+    				</div>
+    				<div class="form-group">
+        				<label class="control-label col-md-4"><i class='glyphicon glyphicon-time'></i></label>
+        				<div class="col-md-8" id='shophours-div'></div>
+    				</div>
+    				<div class="form-group">
+        				<label class="control-label col-md-4"><i class='glyphicon glyphicon-thumbs-up'></i></label>
+        				<div class="col-md-8" id='recommendation-div'></div>
+    				</div>
+    				</form>	
+    				<div class="form-group">
+    					<button class='searchbutton' data-toggle="modal" data-target="#ensure-modal">Go there!</button>
+    				</div>
+				</div>
+				<div class='col-md-6' id='allmap' style="width:50%; height:400px;"></div>
+			</div>		
+		</div>
+
+		<!-- Modal -->
+<div id="ensure-modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Confirmation</h4>
+      </div>
+      <div class="modal-body">
+        <p>Add this to your willing list for tonight?</p>
+      </div>
+      <div class="modal-footer">
+      	<button type="button" id='ensure-btn' class="btn btn-info" data-dismiss="modal">I'm sure</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+		
+	</body>
+
+	<script>
+
+	$(document).ready(function(){
+		var isLogin = false;
+		$.ajax({
+			url: '/nightlife/user/:id',
+			success: function(data){
+				var displayName = data.username;
+                if(displayName){
+                	$('#display-name').text(displayName);
+                	isLogin = true;
+                }
+                else{
+                    $('#display-name').text('Hello guest');
+                    isLogin = false;
+                }
+			}
+		});
+
+		var place_id = <%-JSON.stringify(place_id)%>;
+		var baiduPlaceApiKey = "6cb3f458a482fcd009414370808ea219";
+		var baiduPlaceDetailApi = "http://api.map.baidu.com/place/v2/detail?output=json&scope=2&uid="+place_id+"&ak="+baiduPlaceApiKey;
+
+		$.ajax({
+			url: baiduPlaceDetailApi,
+			dataType: 'jsonp',
+			success: function(data){
+				//alert(data);
+				if(data.result!==undefined){
+					var place = data.result;
+					var name = place.name || 'unknown';
+					var lat = place.location.lat;
+					var lon = place.location.lng;
+					var address = place.address || 'Not Available';
+					var telephone = place.telephone || 'Not Available';
+					var tag = place.detail_info.tag || 'unknown';
+					var shop_hours = place.detail_info.shop_hours || 'Not Available';
+					var recommendation = place.detail_info.recommendation || 'Not Available';
+					var tag_html='';
+					if(tag==='unknown')	{tag_html='Not Available';}
+					else{
+						tag.split(';').forEach(function(t){
+							tag_html += "<span class='tag tag-primary'>"+t+"</span>";
+						});
+					}
+					
+					$('#place-name').text(name);
+					$('#tag-div').html(tag_html);
+					$('#address-div').html(address);
+					$('#telephone-div').html(telephone);
+					$('#shophours-div').html(shop_hours);
+					$('#recommendation-div').html(recommendation);
+					
+					var map = new BMap.Map("allmap");
+					var point = new BMap.Point(lon,lat);
+					map.centerAndZoom(point,19);
+					map.setMapStyle({style:'midnight'});
+					var geoc = new BMap.Geocoder();
+					map.addEventListener("click", function(e){        
+						var pt = e.point;
+						geoc.getLocation(pt, function(rs){
+							var addComp = rs.addressComponents;
+							var address = addComp.district+' '+addComp.street+' '+addComp.streetNumber+', '+addComp.city;
+							//alert(address);
+						});        
+					});
+				}
+				else{
+					alert('Sorry.. no results found...');
+				}
+			}
+		});
+
+		$('#ensure-btn').on('click', function(){
+			var place_name = $('#place-name').text();
+			//alert(place_name);
+			if(isLogin){
+				var postData = {
+					placeId: place_id,
+					placeName: place_name
+				};
+				$.ajax({
+					url: '/nightlife/addPlace',
+					type: "POST",
+					data: postData,
+					success: function(data){
+						if(data==='fail'){
+							alert('Operation failed!');
+						};
+					}
+				});
+			}
+			else{
+				alert("Log in to add willing list!");
+			}
+			
+		});
+		
+	});
+
+/*
+	$(document).ready(function(){
+
+	// Initialize Baidu Map
+	var map = new BMap.Map("allmap");
+	var point = new BMap.Point(116.331398,39.897445);
+	map.centerAndZoom(point,12);
+	map.setMapStyle({style:'midnight'});
+
+	var geoc = new BMap.Geocoder();
+	map.addEventListener("click", function(e){        
+		var pt = e.point;
+		geoc.getLocation(pt, function(rs){
+			var addComp = rs.addressComponents;
+			var address = addComp.district+' '+addComp.street+' '+addComp.streetNumber+', '+addComp.city;
+			alert(address);
+		});        
+	});
+
+	//get current position
+	var geolocation = new BMap.Geolocation();
+	geolocation.getCurrentPosition(function(r){
+		if(this.getStatus() == BMAP_STATUS_SUCCESS){
+			var mk = new BMap.Marker(r.point);
+			map.addOverlay(mk);
+			map.panTo(r.point);
+			map.centerAndZoom(r.point,14);
+			var city = new BMap.LocalCity();
+			city.get(function(result){
+				var cityName = result.name;
+				alert("当前定位城市:"+cityName);
+			});
+			geoc.getLocation(r.point, function(rs){
+				var addComp = rs.addressComponents;
+				var address = addComp.district+' '+addComp.street+' '+addComp.streetNumber+', '+addComp.city;
+				$('#location-span').text(address);
+				alert(address);
+			});
+			//alert('Your location: '+r.point.lng+','+r.point.lat);
+		}
+		else {
+			alert('failed'+this.getStatus());
+		}        
+	},{enableHighAccuracy: true})
+
+
+		
+var local = new BMap.LocalSearch(map, {
+	renderOptions:{map: map, autoViewport:true}
+});
+local.searchNearby("bar", "故宫");
+
+
+	});*/
+
+
+</script>
+
+</html>

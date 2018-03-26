@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+
+<html>
+
+	<head>
+		<title>Declare your voice here!</title>
+		<script type="text/javascript" src="/public/js/jquery.js"></script>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+        <script type="text/javascript" src="/public/js/bootstrap.js"></script>
+
+		<link href="/public/css/bootstrap.css" rel="stylesheet" type="text/css">
+		<link href="/public/css/main.css" rel="stylesheet" type="text/css">
+
+		<script type="text/javascript">
+			$(document).ready(function(){
+				var isLogin = false;
+				$.ajax({
+					url: '/user/:id',
+					success: function(data){
+						var displayName = data.displayName;
+                        if(displayName){
+                            $('#display-name').text(displayName);
+                            isLogin = true;
+                            $('#create-li').removeClass('disabled');
+                        }
+                        else{
+                            $('#display-name').text('Hello guest');
+                            isLogin = false;
+                        }
+						
+					}
+				});
+				var ctx = document.getElementById("myChart");
+                var options = <%-JSON.stringify(options)%>;
+                var labels = Object.keys(options);
+                var values = [];
+                var html = "";
+                for(var i=0; i<labels.length; i++){
+                    var key = labels[i];
+                    values[i] = options[key];
+                    html += "<li class='dropdown-submenu'><a>"+key+"</a><ul class='dropdown-menu vote-option'><li><a>Vote</a></li></ul></li>";
+                }
+                $('#dropdown-ul').prepend(html);
+
+                $('#create-li').on('click', function(){
+                    if(isLogin)
+                        $('#create-div').removeClass('hide');
+                });
+                $('#cancel-create-btn').on('click', function(){
+                    $('#create-div').addClass('hide');
+                });
+                $('#ensure-create-btn').on('click', function(){
+                    var newOption = $('#option-create-input').val();
+                    var pollId = <%-JSON.stringify(_id)%>;
+                    var postData = {
+                        newOption:newOption,
+                        pollId:pollId
+                    };
+                    if(newOption!==''){
+                        $.ajax({
+                            url: '/poll/create/option',
+                            type: 'POST',
+                            data: postData,
+                            success: function(data){
+                                if(data!=='success')
+                                    alert(data);
+                                //reload the page to see the instant result of creating option
+                                window.location.reload();
+                            }
+                        });
+                    }
+                    else{
+                        alert("Option name can't be blank!");
+                    }
+                    
+                });
+                //alert(labels);
+                //alert(values);
+                $('#dropdown-ul').on('click', '.vote-option', function(){
+                    var voteOption = $(this).parent().children().first().text();
+                    var pollId = <%-JSON.stringify(_id)%>;
+                    var postData = {
+                        voteOption:voteOption,
+                        pollId:pollId
+                    };
+                    $.ajax({
+                        url: '/poll/vote',
+                        type: 'POST',
+                        data: postData,
+                        success: function(data){
+                            if(data==='success'){
+                                alert("You have voted for "+voteOption);
+                            }
+                            else{
+                                alert(data);
+                            }
+                            //reload the page to see the instant result of creating option
+                            window.location.reload();
+                        }
+                    });
+                    
+
+                });
+
+var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'Votes',
+            data: values,
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255,99,132,1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        legend:{
+            display: false
+        },
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero:true
+                }
+            }]
+        }
+    }
+});
+				
+				
+			});
+		</script>
+	</head>
+
+	<header>
+		<!--navbar starts-->
+        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+            <div class="navbar-header">
+            	<a class="navbar-brand" href="#"><span id="display-name"></span></a>
+            </div>
+            <div class="pull-right">
+                <ul class="nav navbar-nav">
+                    <li><a href="/profile">Profile</a></li>
+                    <li><a href="/myvotes">My Votes</a></li>
+                    <li><a href="/logout">Logout</a></li>
+                </ul>
+            </div>
+        </nav>
+        <!--navbar ends-->
+	</header>
+
+	<body>
+		<div class="container">
+			<br />
+			<p id="item-question" class="clementine-text"><%=question%></p>
+            <br />
+		</div>
+        
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="dropdown">
+                    <button class="btn btn-primary dropdown-toggle" type="button" id="dropdown-btn" data-toggle="dropdown">Select The One You Support!  <span class="caret"></span></button>
+                    <ul class="dropdown-menu multi-level" id="dropdown-ul" role="menu" aria-labelledby="dropdown-btn">
+                        <li class="divider"></li>
+                        <li class="dropdown-header">Create New Option</li>
+                        <li id='create-li' class='disabled'><a><img src="/public/img/glyphicons-433-plus.png"></a></li>
+                    </ul>
+                    </div>
+                    <div id='create-div' class="form-group hide">
+                    <label for="option-create-input" class="control-label">Option Name:</label>
+                    <input type="text" class="form-control" id="option-create-input">
+                    <button id='cancel-create-btn' class="btn btn-warning">Cancel</button>
+                    <button id='ensure-create-btn' class="btn btn-success">Create</button>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <canvas id="myChart" width="100px" height="100px"></canvas>
+                </div>
+                <div class="col-md-1">
+                    <a href="https://twitter.com/intent/tweet?hashtags=vote&related=DeclareYourVoiceHere&text=Declare your voice on: <%=question%>"><img src="/public/img/twitter_32px.png"></a>
+                </div>
+            </div>
+        </div>
+		
+	</body>
+
+</html>

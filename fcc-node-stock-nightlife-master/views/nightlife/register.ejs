@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+
+<html>
+
+	<head>
+		<title>Night Life Coordinator</title>
+		<script type="text/javascript" src="/public/nightlife/js/jquery.js"></script>
+		<link href="/public/nightlife/css/bootstrap.css" rel="stylesheet" type="text/css">
+		<link href="/public/nightlife/css/main.css" rel="stylesheet" type="text/css">
+	</head>
+
+	<body>
+		<div class="container">
+			<br />
+				<p class="clementine-text">We Make Your Night</p>
+				<br />
+		</div>
+		<div class="container">	
+			<div class="login">
+				<div class='form-group has-error'>
+					<label for='username-input'>Username:</label>
+					<input id='username-input' type="text" name="username"/>
+					<span id='username-help' class="help-block"></span>
+				</div>
+				<div class='form-group has-error'>
+					<label for='password-input'>Password:</label>
+					<input id='password-input' type="password" name="password"/>
+					<span id='password-help' class="help-block"></span>
+				</div>
+				<div class='has-error'>
+					<span id='help' class="help-block"></span>
+				</div>
+				<div>
+					<button id='submit-btn' class='searchbutton'>Submit</button>
+				</div>
+			</div>
+		</div>
+	</body>
+
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$('#submit-btn').on('click', function(){
+				
+				var newUsername = $('#username-input').val().trim();
+				var newPassword = $('#password-input').val().trim();
+				var usernameValid = true;
+				var passwordValid = true;
+				if(newUsername===null || newUsername===''){
+					$('#username-help').text('* required');
+					usernameValid = false;
+				}
+				if(newPassword===null || newPassword===''){
+					$('#password-help').text('* required');
+					passwordValid = false;
+				}
+				if(usernameValid && passwordValid){
+					$('#username-help').text('');
+					$('#password-help').text('');
+					$('#help').text('');
+					var postData = {
+						username: newUsername,
+						password: newPassword
+					};
+					$.ajax({
+						url: '/nightlife/register',
+						data: postData,
+						type: 'POST',
+						success: function(data){
+							if(data==='exist'){
+								$('#help').text('This name has already been used.');
+							}
+							else if(data==='fail'){
+								$('#help').text('Network unavailable.');
+							}
+							else if(data==='success'){
+								window.location.href = '/nightlife/login';
+							}
+							
+						}
+					});
+				}
+				
+				
+			});
+		});
+	</script>
+
+</html>

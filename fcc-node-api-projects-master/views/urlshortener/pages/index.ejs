@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include ../partials/header.ejs %>
+</head>
+
+  <body>
+  	<div class="container" style="padding:10px;">
+  		<div class="row">
+  			<h1 class="inline">Url Shortener</h1>
+  			<a href="http://shielded-oasis-60412.herokuapp.com/"><img class="inline" src="heroku.png"></a>
+  			<a href="https://www.freecodecamp.com/challenges/url-shortener-microservice"><img class="inline" src="freecodecamp.png"></a>
+  		</div>
+  		<div class="row">
+  			<h3>User Stories</h3>
+  			<ul>
+  				<li><p>I can pass a URL as a parameter and I will receive a shortened URL in the JSON response.</p></li>
+          <li><p>If I pass an invalid URL that doesn't follow the valid http://www.example.com format, the JSON response will contain an error instead.</p></li>
+          <li><p>When I visit that shortened URL, it will redirect me to my original link.</p></li>
+  			</ul>
+  		</div>
+  		<div class="row">
+  			<h3>Example Usage</h3>
+  			<ul>
+  				<li><code>http://shielded-oasis-60412.herokuapp.com/urlshortener/https://google.com</code></li>
+  			</ul>
+  		</div>
+  		<div class="row">
+  			<h3>Example Output</h3>
+  			<ul>
+          <li>You will get a shortened url. Paste the short url in your brower, and it will redirect you to your original url.</li>
+  				<li>If your original url is not valid, then a warning message will be shown.</li>
+  			</ul>
+  		</div>
+  	</div>
+    
+  </body>
+</html>

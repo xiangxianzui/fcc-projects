@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+
+<html>
+
+	<head>
+		<title>Book Manager</title>
+		<script type="text/javascript" src="/public/book/js/jquery.js"></script>
+		<script type="text/javascript" src="/public/book/js/bootstrap.js"></script>
+		<link href="/public/book/css/bootstrap.css" rel="stylesheet" type="text/css">
+		<link href="/public/book/css/main.css" rel="stylesheet" type="text/css">
+
+
+	</head>
+
+	<header>
+		<!--navbar starts-->
+        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+            <div class="navbar-header">
+            	<a class="navbar-brand" href="#"><span id="display-name"></span></a>
+            </div>
+            <div class="pull-right">
+                <ul class="nav navbar-nav">
+                	<li><a href="/book">Book Manager</a></li>
+                    <li><a href="/pinterest">Pinterest Clone</a></li>
+                    <li id='sign_in_li'><a href="/login"><span class="glyphicon glyphicon-log-in"></span> Sign In</a></li>
+                    <li id='sign_up_li'><a href="/register"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+                    <li id='profile_li' class='hide' title='Profile'><a href="/profile"><span class="glyphicon glyphicon-th"></span></a></li>
+                    <li id='logout_li' class='hide' title='Log Out'><a href="/logout"><span class="glyphicon glyphicon-off"></span></a></li>
+                </ul>
+            </div>
+        </nav>
+        <!--navbar ends-->
+	</header>
+
+	<body>
+		<div class="container">
+			<div><h1 class="text-center">My Books</h1><a href='/book'><span class="glyphicon glyphicon-hand-left"></span> All Books</a><br><br></div>
+
+			<div id='alert-div' class="alert alert-info alert-dismissible hide" role="alert">
+  				<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+  				<strong>Authentication Failed!</strong>  To use this feature, please <a href='/login'>log in</a> first.
+			</div>
+			
+			<div class='row' id='all-books-div'>
+				<div class="col-sm-6 col-md-4">
+    				<div class="thumbnail text-center" style='border: none;'>
+      					<button id='post-new-btn' data-toggle="modal" data-target="#ensure-modal" class='btn btn-default' title='Post A New Book'><img src="/public/book/img/add_logo_256px.png" alt="Post A New Book"></button>
+    				</div>
+  				</div>
+			</div>
+		</div>
+
+<!-- Modal -->
+<div id="ensure-modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Post A New Book</h4>
+      </div>
+      <div class="modal-body">
+        <div class='input-group'>
+			<span class="input-group-addon"><i class="glyphicon glyphicon-book"></i></span>
+			<input id='bookname-input' type="text" class='form-control' name="bookname" placeholder='Bookname'/>
+		</div>
+		<div class='has-error'><span id='bookname-help' class="help-block"></span></div>
+		<div class='input-group'>
+			<img id='book-thumbnail-img' src="/public/book/thumbnail/default_book_thumbnail.png" alt='poster' style="width: 256px; height: 256px">
+			<input class='hide' id='upload-input' type='file' name='upload[]'>
+			<button class='btn btn-default' id='upload-btn'>Upload</button>
+		<div class='has-error'><span id='thumbnail-help' class="help-block"></span></div>
+      	</div>
+      	<div class='has-success'><span id='post-book-help' class="help-block"></span></div>
+      </div>
+      <div class="modal-footer">
+      	<button type="button" id='ensure-post-btn' class="btn btn-primary">Post</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+		
+	</body>
+
+	<footer>
+		<nav class="navbar navbar-inverse navbar-fixed-bottom">
+  			<div class="container">
+    			<div style="margin-top: 1%">
+          		<a href="mailto:xiangxianzui@gmail.com"><span class="glyphicon glyphicon-envelope"></span> Email</a> | 
+          		<a href="https://github.com/xiangxianzui/fcc-node-book-pinterest"><span class="glyphicon glyphicon-home"></span> Github</a>
+        		</div>
+  			</div>
+		</nav>
+		
+	</footer>
+
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		$.ajax({
+			url: '/book/getMy',
+			success: function(data){
+				var books = data;
+				if(books!==null && books.length!==0){
+					books.forEach(function(b){
+						var bookid = b._id;
+						var bookid_html = "<p class='hide'>"+bookid+"</p>";
+						var bookname = b.bookname;
+						var thumbnail = b.thumbnail;
+						var status = b.status;
+						var thumbnail_path = '/public/book/thumbnail/' + thumbnail;
+						var traded_html = "";
+						var untraded_html = "";
+						if(status==='traded'){
+							traded_html = "<button id='untrade-btn' class='btn btn-default disabled' title='This book is traded'><span class='glyphicon glyphicon-eye-close'></span></button>";
+							untraded_html = "<button id='trade-btn' class='btn btn-default hide' title='Request a trade'><span class='glyphicon glyphicon-eye-open'></span></button>";
+						}
+						if(status==='untraded'){
+							traded_html = "<button id='untrade-btn' class='btn btn-default disabled hide' title='This book is traded'><span class='glyphicon glyphicon-eye-close'></span></button>";
+							untraded_html = "<button id='trade-btn' class='btn btn-default' title='Request a trade'><span class='glyphicon glyphicon-eye-open'></span></button>";
+						}
+
+						var delete_html = "<button id='delete-book-btn' class='btn btn-danger' title='Delete'><span class='glyphicon glyphicon-trash'></span></button>";
+						var html = "<div class='col-sm-6 col-md-4'><div class='thumbnail' style='border: none;'><img src='"+thumbnail_path+"' alt='poster' style='width: 256px; height: 256px'><div class='caption text-center'><p>"+bookname+"</p>"+bookid_html+"<button title='View Wiki' id='wiki-btn' class='btn btn-default'><span class='glyphicon glyphicon-globe'></span></button>"+traded_html+untraded_html+delete_html+"</div></div></div>";
+						$('#all-books-div').prepend(html);
+								
+					});
+				}
+				else{//No books available
+					//alert("No books available!");
+				}
+			}
+		});
+	});
+</script>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		$('#all-books-div').on('click', '#trade-btn', function(){
+			var bookid = $(this).parent().children().eq(1).text();
+			$.ajax({
+				url: '/user/:id',
+				success: function(data){
+					var currentUserId = data._id;
+					if(currentUserId){//user logged in
+						var postData = {
+							bookid: bookid
+						};
+						$.ajax({
+							url: '/book/trade',
+							type: 'POST',
+							data: postData,
+							success: function(data){
+								if(data==='success'){
+									window.location.reload();
+								}
+							}
+						});
+					}
+					else{//user not logged in
+						$('#alert-div').removeClass('hide');
+						window.location.href = '#';
+					}	
+				}
+			});
+		});
+
+		$('#all-books-div').on('click', '#delete-book-btn', function(){
+			var bookname = $(this).parent().children().eq(0).text();
+			$.ajax({
+				url: '/user/:id',
+				success: function(data){
+					var currentUserId = data._id;
+					var postData = {
+						bookname: bookname,
+						userid: currentUserId
+					};
+					$.ajax({
+						url: '/book/delete',
+						type: 'POST',
+						data: postData,
+						success: function(data){
+							if(data==='success'){
+								window.location.reload();
+							}
+						}
+					});
+				}
+			});
+			
+		});
+
+		$('#all-books-div').on('click', '#wiki-btn', function(){
+			var bookname = $(this).parent().children().eq(0).text();
+			var wiki_link = encodeURI("http://en.wikipedia.org/wiki/"+bookname);
+			window.open(wiki_link);
+		});
+	});
+</script>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		//create a FormData object which will be sent via AJAX request
+        var formData = new FormData();
+		$('#upload-btn').on('click', function(){
+			$('#upload-input').click();	
+		});
+		$('#upload-input').on('change', function(){
+			var files = $(this).get(0).files;
+			if(files.length>0){//one or more files selected
+				var file = files[0];
+				/*preview the image starts*/
+          		var reader = new FileReader();
+          		reader.onload = function(e){
+          			$('#book-thumbnail-img').attr('src', e.target.result);
+          		}
+          		reader.readAsDataURL(file);
+          		/*preview the image ends*/
+	
+          		//'upload[]' is the name attr of #upload-input
+          		//append the selected file to formData obj
+          		formData.append('upload[]', file, file.name);
+        	}
+		});
+
+		$('#ensure-post-btn').on('click', function(){
+			var bookname = $('#bookname-input').val().trim();
+			if(bookname!==''){
+				if(formData.get('upload[]')){
+					formData.append('bookname', bookname);
+					$.ajax({
+						url: '/book/postNew',
+						type: 'POST',
+						data: formData,
+						processData: false,
+            			contentType: false,
+						success: function(data){
+							if(data==='success'){
+								$('#post-book-help').text("Post success!");
+								setTimeout(function(){$('#post-book-help').text(''); window.location.reload();}, 3000);
+							}
+							if(data==='exist'){
+								$('#bookname-help').text("You have posted the same book before!");
+								setTimeout(function(){$('#bookname-help').text('');}, 3000);
+							}
+							if(data==='not logged in'){
+								$('#thumbnail-help').text("Log in to post a new book!");
+								setTimeout(function(){$('#thumbnail-help').text(''); window.location.href='/login';}, 3000);
+							}
+						
+						}
+					});
+				}
+				else{//did not upload the book poster
+					$('#thumbnail-help').text("Please upload a poster of the book!");
+					setTimeout(function(){$('#thumbnail-help').text('');}, 3000);
+				}
+				
+			}
+			else{//bookname is blank
+				$('#bookname-help').text("Bookname can not be blank!");
+				setTimeout(function(){$('#bookname-help').text('');}, 3000);
+			}
+		});
+	});
+</script>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		var isLogin = false;
+		$.ajax({
+			url: '/user/:id',
+			success: function(data){
+				var displayName = data.username;
+                if(displayName){
+                	$('#display-name').text(displayName);
+                	isLogin = true;
+                	$('#sign_in_li').addClass('hide');
+                	$('#sign_up_li').addClass('hide');
+                	$('#profile_li').removeClass('hide');
+                	$('#logout_li').removeClass('hide');
+                }
+                else{
+                    $('#display-name').text('Hello guest');
+                    isLogin = false;
+                }
+			}
+		});
+	});
+</script>
+
+</html>

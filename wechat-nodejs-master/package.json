@@ -1,0 +1,30 @@
+{
+  "name": "wechat-nodejs",
+  "version": "1.0.0",
+  "description": "Implement wechat web app using nodejs",
+  "main": "server.js",
+  "scripts": {
+    "test": "node server.js",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xiangxianzui/wechat-nodejs.git"
+  },
+  "keywords": [
+    "nodejs"
+  ],
+  "author": "xiangxianzui",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/xiangxianzui/wechat-nodejs/issues"
+  },
+  "homepage": "https://github.com/xiangxianzui/wechat-nodejs#readme",
+  "dependencies": {
+    "crypto": "0.0.3",
+    "dotenv": "^4.0.0",
+    "ejs": "^2.5.5",
+    "express": "^4.14.1",
+    "node-xml": "^1.0.2"
+  }
+}

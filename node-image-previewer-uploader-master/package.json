@@ -1,0 +1,29 @@
+{
+  "name": "node-image-previewer-uploader",
+  "version": "1.0.0",
+  "description": "An image uploader with previewing functionality using nodejs",
+  "main": "server.js",
+  "scripts": {
+    "test": "node server.js",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xiangxianzui/node-image-previewer-uploader.git"
+  },
+  "keywords": [
+    "node"
+  ],
+  "author": "xiangxianzui",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/xiangxianzui/node-image-previewer-uploader/issues"
+  },
+  "homepage": "https://github.com/xiangxianzui/node-image-previewer-uploader#readme",
+  "dependencies": {
+    "dotenv": "^4.0.0",
+    "ejs": "^2.5.5",
+    "express": "^4.14.0",
+    "formidable": "^1.1.1"
+  }
+}

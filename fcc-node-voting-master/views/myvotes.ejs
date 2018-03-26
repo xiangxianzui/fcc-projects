@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+
+<html>
+
+	<head>
+		<title>Declare your voice here!</title>
+		<script type="text/javascript" src="/public/js/jquery.js"></script>
+		<link href="/public/css/bootstrap.css" rel="stylesheet" type="text/css">
+		<link href="/public/css/main.css" rel="stylesheet" type="text/css">
+
+	</head>
+
+	<header>
+		<!--navbar starts-->
+        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+            <div class="navbar-header">
+            	<a class="navbar-brand" href="#"><span id="display-name"></span></a>
+            </div>
+            <div class="pull-right">
+                <ul class="nav navbar-nav">
+                    <li><a href="/profile">Profile</a></li>
+                    <li><a href="/myvotes">My Votes</a></li>
+                    <li><a href="/logout">Logout</a></li>
+                </ul>
+            </div>
+        </nav>
+        <!--navbar ends-->
+        <script type="text/javascript">
+        	$(document).ready(function(){
+        		var isLogin = false;
+				$.ajax({
+					url: '/user/:id',
+					success: function(data){
+						var displayName = data.displayName;
+                        if(displayName){
+                            $('#display-name').text(displayName);
+                            isLogin = true;
+                            $('#create-btn').removeClass('hide');
+                        }
+                        else{
+                            $('#display-name').text('Hello guest');
+                            isLogin = false;
+                        }
+					}
+				});
+
+				$('#create-btn').on('click', function(){
+					if(isLogin){
+						$('#create-question-div').removeClass('hide');
+					}
+				});
+
+				$('#cancel-create-btn').on('click', function(){
+					$('#create-question-div').addClass('hide');
+				});
+
+				$('#add-create-btn').on('click', function(){
+					var optionNum = $('#create-option-div').children().length-1;
+					if(optionNum<10){
+						$('#create-option-div').append("<input type='text' class='form-control' placeholder='New Option'>");
+					}
+					else{
+						alert("Can't create so many options!");
+					}
+				});
+
+				$('#ensure-create-btn').on('click', function(){
+					var optionSet = new Set();
+					var optionNum = $('#create-option-div').children().length-1;
+					for(var i=0; i<optionNum; i++){
+						var thisOption = $('#create-option-div').children().eq(i+1);
+						var thisOptionStr = thisOption.val().trim();
+						if(thisOptionStr && thisOptionStr!==''){
+							optionSet.add(thisOptionStr);
+						}	
+					}
+					var optionArray = Array.from(optionSet);
+					var question = $('#question-create-input').val().trim();
+					if(question && question!=='' && optionArray.length!==0){
+						var postData = {
+							pollQuestion: question,
+							pollOptions: optionArray.join(' * ')
+						};
+
+						$.ajax({
+							url: '/poll/create/new',
+							type: 'POST',
+							data: postData,
+							success: function(data){
+								if(data==='success')
+                                    window.location.reload();
+                                	//reload the page to see the instant result of creating option
+                                
+							}
+						});
+					}
+					else{
+						alert("Please create a question and add some options to it!");
+					}
+					
+				});
+
+				var myvotes = <%-JSON.stringify(myvotes)%>;
+				for(var i=0; i<myvotes.length; i++){
+					var thisPollOptionStr = "";
+					var keys = Object.keys(myvotes[i].options);
+					keys.forEach(function(key){
+						var value = myvotes[i].options[key];
+						if(value!==null)	thisPollOptionStr = thisPollOptionStr + key + ":" + value + "; ";
+					});
+					
+
+					var html = "<tr><td><a href='poll/:"+myvotes[i]._id+"'>"+myvotes[i].question+"</a></td><td>"+thisPollOptionStr+"</td><td>"+"<img style='cursor:pointer' src='/public/img/trash_24px.png'>"+"<a style='margin:5px' class='btn btn-danger hide' href='myvotes/delete/:"+myvotes[i]._id+"'>Confirm</a><button style='margin:5px' class='btn btn-warning hide cancel-btn'>Cancel</button></td></tr>";
+					$('#all-vote-tbody').append(html);
+				}
+
+				$('#all-vote-tbody').on('click', 'img', function(){
+					$(this).next().removeClass('hide');
+					$(this).next().next().removeClass('hide');
+				});
+
+				$('#all-vote-tbody').on('click', '.cancel-btn', function(){
+					$(this).prev().addClass('hide');
+					$(this).addClass('hide');
+				});
+				
+        	});
+        </script>
+	</header>
+
+	<body>
+		<div class="container">
+			<br />
+			<p class="clementine-text">Declare your voice here!</p>
+			<br />
+		</div>
+
+		<div class="container">
+			<button id="create-btn" class="btn btn-success hide"><span>Create New Poll</span></button>
+			<div id='create-question-div' class='hide'>
+				<div class="form-group">
+					<label for="question-create-input" class="control-label">Question Name:</label>
+                    <input type="text" class="form-control" id="question-create-input">
+				</div>
+				<div class="form-group" id='create-option-div'>
+					<label class="control-label">Options:</label>
+					<input type="text" class="form-control" placeholder="Option 1">
+					<input type="text" class="form-control" placeholder="Option 2">
+				</div>	
+				<div>
+            		<button id='add-create-btn' class="btn btn-primary">Add Option</button>
+                	<button id='ensure-create-btn' class="btn btn-success">Create</button>
+                	<button id='cancel-create-btn' class="btn btn-warning">Cancel</button>
+            	</div>	
+            </div>
+            
+		</div>
+	
+		<div class="container">
+			<table id='all-vote-table' class='table'>
+			<thead>
+            <tr>
+                <th>Question</th>
+                <th>Options</th>
+            </tr>
+        	</thead>
+        	<tbody id='all-vote-tbody'>
+        	</tbody>
+			</table>
+
+		</div>
+		
+	</body>
+
+</html>

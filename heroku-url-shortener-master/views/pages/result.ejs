@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include ../partials/header.ejs %>
+</head>
+
+<body>
+	<ul>
+		<li><p>Your original url: <%=origin_url%></p></li>
+		<li><p>Your short url: <%if(short_url){%>
+  	<%=short_url%><%}else{%>'original url is not valid'<%}%>%></p></li>
+	</ul>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+
+<html>
+
+	<head>
+		<title>Image Uploader</title>
+		<script type="text/javascript" src="/public/js/jquery.js"></script>
+		<script type="text/javascript" src="/public/js/bootstrap.js"></script>
+		<link href="/public/css/bootstrap.css" rel="stylesheet" type="text/css">
+
+	</head>
+
+	<body>
+		<div class="container">
+			<div><h1 class="text-center text-primary">Image Uploader</h1><br><br></div>
+			<div class='row' id='all-books-div'>
+    			<div class="thumbnail text-center" style="border: none;">
+      				<button id='post-new-btn' data-toggle="modal" data-target="#upload-modal" class='btn btn-default' title='Post A New Book'><img src="/public/img/add_logo_256px.png" alt="Post A New Book"></button>
+    			</div>
+			</div>
+		</div>
+
+<!-- Modal -->
+<div id="upload-modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Upload A Book Poster</h4>
+      </div>
+      <div class="modal-body">
+		<div class='input-group'>
+			<img id='book-thumbnail-img' src="/public/img/default_book_thumbnail.png" alt='poster' style="width: 256px; height: 256px">
+			<input class='hide' id='upload-input' type='file' name='upload[]'>
+			<button class='btn btn-default' id='upload-btn'>Upload</button>
+      	</div>
+      	<div class='has-error'><span id='thumbnail-help' class="help-block"></span></div>
+      	<div class='has-success'><span id='post-book-help' class="help-block"></span></div>
+      </div>
+      <div class="modal-footer">
+      	<button type="button" id='ensure-post-btn' class="btn btn-primary">Post</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+		
+	</body>
+
+<script type="text/javascript" src='/public/js/uploader.js'></script>
+
+</html>

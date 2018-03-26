@@ -1,0 +1,27 @@
+{
+  "name": "heroku-request-info-getter",
+  "version": "1.0.0",
+  "description": "Get request information such as ip address, language, etc.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xiangxianzui/heroku-request-info-getter.git"
+  },
+  "keywords": [
+    "node"
+  ],
+  "author": "xiangxianzui",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/xiangxianzui/heroku-request-info-getter/issues"
+  },
+  "homepage": "https://github.com/xiangxianzui/heroku-request-info-getter#readme",
+  "dependencies": {
+    "express": "^4.14.0",
+    "request-ip": "^1.2.3",
+    "useragent": "^2.1.9"
+  }
+}

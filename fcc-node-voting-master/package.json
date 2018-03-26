@@ -1,0 +1,34 @@
+{
+  "name": "fcc-node-voting",
+  "version": "1.0.0",
+  "description": "A voting app using node.js",
+  "main": "server.js",
+  "scripts": {
+    "test": "node server.js",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xiangxianzui/fcc-node-voting.git"
+  },
+  "keywords": [
+    "node"
+  ],
+  "author": "xiangxianzui",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/xiangxianzui/fcc-node-voting/issues"
+  },
+  "homepage": "https://github.com/xiangxianzui/fcc-node-voting#readme",
+  "dependencies": {
+    "dotenv": "^2.0.0",
+    "ejs": "^2.5.5",
+    "express": "^4.14.0",
+    "express-session": "^1.14.2",
+    "mongodb": "^2.2.16",
+    "mongoose": "^4.7.4",
+    "passport": "^0.3.2",
+    "passport-github": "^1.1.0",
+    "request-ip": "^1.2.3"
+  }
+}

@@ -1,0 +1,12 @@
+# Node build artifacts
+node_modules
+npm-debug.log
+
+# Local development
+*.dev
+.DS_Store
+important.txt
+
+# Docker
+Dockerfile
+docker-compose.yml

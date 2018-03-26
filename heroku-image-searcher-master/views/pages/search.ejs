@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include ../partials/header.ejs %>
+</head>
+
+<body>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			//alert();
+			$('#search_b').on('click', function(){
+				var query = $('#search_q').val();
+				var offset = $('#search_o').val();
+				if(query==='' || offset===''){
+					alert("You can't search 'nothing'!");
+				}
+				else if(isNaN(offset)){
+					alert("Offset must be a number!");
+				}
+				else{
+					var protocol = $(location).attr('protocol');
+					var host = $(location).attr('host');
+					var url = protocol+"//"+host+"/imagesearch/?q="+query+"&offset="+offset;
+					//alert(url);
+					window.location.replace(url);
+				}
+			});
+		});
+	</script>
+
+	<div class="container">
+		<h1 class="text-center">Image Searcher</h1>
+		<div class="text-center" style="margin: 100px;">
+			<input id='search_q' class="searchbar" placeholder="What do you want?">
+			<input id='search_o' class="searchbar" placeholder="Offset">
+			<button id='search_b' class="searchbutton">Go</button>
+		</div>
+		<div>
+			<p>Your search result: <%if(search_result.length===0){%>
+  	'No pics to display'
+  	<%}%>
+  			</p>
+  			<table class="table">
+  				<tr>
+    				<th>Name</th>
+    				<th>Source</th> 
+    				<th>Image</th>
+  				</tr>
+  				<% for(var i=0; i<search_result.length; i++){ %>
+  					<tr>
+  						<td><%= search_result[i].name %></td>
+  						<td><a href='http://<%= search_result[i].hostPageDisplayUrl %>'>View Source</a></td>
+  						<td><img class='searchimg' src='<%=search_result[i].thumbnailUrl%>'></td>
+  					</tr>
+  				<% } %>
+  			</table>
+		</div>
+	</div>
+</body>
+</html>

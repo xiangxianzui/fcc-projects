@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+
+<html>
+
+	<head>
+		<title>Night Life Coordinator</title>
+		<script type="text/javascript" src="/public/nightlife/js/jquery.js"></script>
+		<script type="text/javascript" src="/public/nightlife/js/bootstrap.js"></script>
+		<link href="/public/nightlife/css/bootstrap.css" rel="stylesheet" type="text/css">
+		<link href="/public/nightlife/css/main.css" rel="stylesheet" type="text/css">
+
+
+	</head>
+
+	<header>
+		<!--navbar starts-->
+        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+            <div class="navbar-header">
+            	<a class="navbar-brand" href="#"><span id="display-name"></span></a>
+            </div>
+            <div class="pull-right">
+                <ul class="nav navbar-nav">
+                	<li><a href="/nightlife/login">Sign In</a></li>
+                    <li><a href="/nightlife/willinglist">Willing List</a></li>
+                    <li><a href="/nightlife/logout">Logout</a></li>
+                </ul>
+            </div>
+        </nav>
+        <!--navbar ends-->
+	</header>
+
+	<body>
+		<div class="container">
+			<br />
+			<p class="clementine-text">We Make Your Night</p>
+			<br />
+		</div>
+		<div class='container'>
+			<ul class="list-group" id='willing-list'>
+  
+			</ul>
+		</div>
+
+				<!-- Modal -->
+<div id="ensure-modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Warning</h4>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure to delete this place?</p>
+        <p class='hide' id='place_id_hidden'></p>
+      </div>
+      <div class="modal-footer">
+      	<button type="button" id='ensure-btn' class="btn btn-danger" data-dismiss="modal">I'm sure</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+	</body>
+
+	<script>
+
+	$(document).ready(function(){
+
+		var isLogin = false;
+		$.ajax({
+			url: '/nightlife/user/:id',
+			success: function(data){
+				var displayName = data.username;
+                if(displayName){
+                	$('#display-name').text(displayName);
+                	isLogin = true;
+                }
+                else{
+                    $('#display-name').text('Hello guest');
+                    isLogin = false;
+                }
+			}
+		});
+
+		$.ajax({
+			url: '/nightlife/mywills',
+			success: function(data){
+				if(data!==null && data!==undefined){
+					$('#willing-list').html('');
+					var keys = Object.keys(data);
+					if(keys.length===0){
+						$('#willing-list').html('You have nothing in willing list yet :(');
+					}
+					else{
+						keys.forEach(function(key){
+							var placeName = data[key];
+							var html = "<li class='list-group-item'>"+placeName+"<a class='pull-right btn' data-toggle='modal' data-target='#ensure-modal'><i class='glyphicon glyphicon-trash'></i></a><a class='pull-right btn' href='/nightlife/place/:"+key+"'><i class='glyphicon glyphicon-send'></i></a><p class='hide'>"+key+"</p></li>";
+							$('#willing-list').append(html);
+						});
+					}
+					
+				}
+
+			}
+		});
+
+		$('#willing-list').on('click', 'li', function(){
+			var placeId = $(this).find('p').text();
+			$('#place_id_hidden').text(placeId);
+		});
+
+		$('#ensure-btn').on('click', function(){
+			var placeId = $('#place_id_hidden').text();
+			var postData = {
+				placeId: placeId
+			};
+			$.ajax({
+				url: '/nightlife/deletePlace',
+				type: 'POST',
+				data: postData,
+				success: function(data){
+					if(data==='success'){
+						window.location.reload();
+					}
+				}
+			});
+		});
+		
+	});
+
+
+</script>
+
+</html>

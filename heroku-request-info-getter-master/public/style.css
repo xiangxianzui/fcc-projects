@@ -1,0 +1,16 @@
+body{
+  background-color: #6567a5;
+  color: #f5f5f5;
+  padding: 10px;
+}
+
+img{
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+}
+
+.inline{
+  display: inline-block;
+  margin: 5px;
+}
